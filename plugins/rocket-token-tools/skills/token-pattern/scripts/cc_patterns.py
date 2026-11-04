@@ -144,10 +144,12 @@ def main():
 
     have = {}
     for path in glob.glob(os.path.join(a.sync, "**", "*.json"), recursive=True):
-        if "merged" in path.split(os.sep):
+        if "merged" in path.split(os.sep) or not os.path.basename(path).startswith("cc-"):
             continue
         with open(path, encoding="utf-8") as fh:
             d = json.load(fh)
+        if not isinstance(d, dict):
+            continue
         have[os.path.basename(path)[:-5]] = d.get("data") if isinstance(d.get("data"), dict) else d
     out = os.path.join(a.sync, "merged")
     os.makedirs(out, exist_ok=True)
