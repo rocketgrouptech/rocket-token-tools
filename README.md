@@ -16,14 +16,14 @@ Dữ liệu của mỗi người lưu riêng trong tài khoản claude.ai của 
 Cài một lần:
 
 ```bash
-claude plugin marketplace add <github-org>/rocket-token-tools
+claude plugin marketplace add rocketgrouptech/rocket-token-tools
 ```
 
 ```bash
 claude plugin install rocket-token-tools@rocketgroup-claude
 ```
 
-Hoặc trong một phiên Claude Code: `/plugin marketplace add <github-org>/rocket-token-tools`, rồi `/plugin install rocket-token-tools@rocketgroup-claude`.
+Hoặc trong một phiên Claude Code: `/plugin marketplace add rocketgrouptech/rocket-token-tools`, rồi `/plugin install rocket-token-tools@rocketgroup-claude`.
 
 Sau đó, trong Claude Code trên app Claude desktop, gõ:
 
