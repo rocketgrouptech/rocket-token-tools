@@ -2,9 +2,15 @@
 """Score every recent Claude Code session automatically, from the local session logs.
 
 Reads ~/.claude/projects/**/*.jsonl and rebuilds each session's working pattern
-(messages sent, corrections, images, model, web use, reply length, task type),
-then scores it with the same formula as score.py and the "Nhật ký tiết kiệm"
-page. No manual copying of TP1 codes.
+(messages sent, corrections, images, model, web use, reply length, task type).
+
+Two kinds of numbers come out, and only the second one is judged:
+- volume: the pattern score (score.py) and the output tokens. A bigger task is
+  allowed to be bigger; volume is shown, never ranked.
+- efficiency: `ratio` = tokens Claude had to read per token it produced, from the
+  measured usage (cache reads weighted at 0.1, as they cost about a tenth), and
+  `fix` / `turns`. These do not grow with task size, so this week can be compared
+  fairly with last week.
 
 Usage:
   python3 cc_patterns.py --days 14              # table + TP1 codes
@@ -68,7 +74,7 @@ def scan(root, days):
                 if t < since:
                     continue
                 s = S.setdefault(sid, {"start": t, "project": "", "first": "", "turns": 0, "fix": 0, "img": 0,
-                                       "docs": 0, "out": 0, "web": 0, "models": {}})
+                                       "docs": 0, "out": 0, "read": 0, "web": 0, "models": {}})
                 s["start"] = min(s["start"], t)
                 if not s["project"] and d.get("cwd"):
                     s["project"] = os.path.basename(d["cwd"])
@@ -99,6 +105,8 @@ def scan(root, days):
                     if u and key not in seen:
                         seen.add(key)
                         s["out"] += u.get("output_tokens", 0)
+                        s["read"] += (u.get("input_tokens", 0) + u.get("cache_creation_input_tokens", 0)
+                                      + 0.1 * u.get("cache_read_input_tokens", 0))
                         if (u.get("server_tool_use") or {}).get("web_search_requests"):
                             s["web"] = 1
                         mdl = msg.get("model") or ""
@@ -116,7 +124,8 @@ def to_pattern(sid, s):
     p = {"task": task, "turns": max(1, s["turns"]), "fix": s["fix"], "pages": s["docs"] * 5, "img": s["img"],
          "len": length, "model": model, "web": s["web"], "old": 0}
     score, _ = estimate(p)
-    p.update({"id": "cc-" + sid, "sid": sid, "date": s["start"].astimezone().strftime("%Y-%m-%d"), "score": score,
+    p.update({"out": s["out"], "read": int(s["read"]), "ratio": round(s["read"] / max(1, s["out"]), 1),
+              "id": "cc-" + sid, "sid": sid, "date": s["start"].astimezone().strftime("%Y-%m-%d"), "score": score,
               "auto": True, "env": "code", "note": (s["project"] + ": " + s["first"]).replace("|", "/")[:120],
               "createdAt": int(time.time() * 1000)})
     return p
@@ -138,7 +147,7 @@ def main():
     if not a.sync:
         print(f"{len(rows)} Claude Code sessions in the last {a.days} days\n")
         for r in rows:
-            print(f"{r['date']}  {r['task']:<8} {r['turns']:>3} msgs {r['fix']:>2} fixes  {r['score']:>8} pts  {r['note'][:60]}")
+            print(f"{r['date']}  {r['task']:<8} {r['turns']:>3} msgs {r['fix']:>2} fixes  out {r['out']:>8}  ratio {r['ratio']:>5}  {r['note'][:50]}")
             print("  " + code_of(r))
         return
 
@@ -156,7 +165,7 @@ def main():
     n = 0
     for r in rows:
         old = have.get(r["id"])
-        if old and old.get("turns") == r["turns"] and old.get("score") == r["score"]:
+        if old and old.get("turns") == r["turns"] and old.get("out") == r["out"]:
             continue
         if old:  # keep a task type or date the person corrected on the page
             r["task"] = old.get("task", r["task"])

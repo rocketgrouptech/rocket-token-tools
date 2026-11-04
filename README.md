@@ -46,9 +46,16 @@ Các app chat không cho công cụ nào đọc số token của từng cuộc c
 - gõ `/token-pattern`: Claude chấm điểm phiên đó và trả về một mã `TP1|…` để dán vào Nhật ký tiết kiệm;
 - gõ `/token-usage`: Claude ước lượng số token và trả về một mã `TU1|…` để dán vào Bản đồ token.
 
-## Điểm token là gì
+## So sánh tuần này với tuần trước thế nào
 
-Điểm token là **ước lượng tương đối** dựa trên cách làm việc, không phải số token thật. Nó dùng để so cùng một loại việc theo thời gian. Công thức nằm trong [`score.py`](plugins/rocket-token-tools/skills/token-pattern/scripts/score.py) và giống hệt công thức trên trang Nhật ký tiết kiệm.
+Không so tổng số token, vì việc phức tạp hơn đương nhiên tốn nhiều hơn. Trang so **độ gọn**, đo thật từ log Claude Code:
+
+- **Đọc lại**: số token Claude phải đọc cho mỗi token nó tạo ra (token đọc từ cache tính 10% vì rẻ hơn khoảng 10 lần). Làm việc lớn hơn thì Claude tạo ra nhiều hơn, chỉ số không đổi; chat kéo dài, sửa nhiều lần, mang theo lịch sử thừa thì chỉ số tăng.
+- **Tỷ lệ sửa**: phần trăm tin nhắn là để sửa lại.
+
+Mỗi tuần tính bằng tổng token đọc ÷ tổng token tạo ra, nên phiên rất ngắn không làm lệch kết quả. Khối lượng việc vẫn hiện để tham khảo nhưng không tính vào đánh giá.
+
+Điểm token trong [`score.py`](plugins/rocket-token-tools/skills/token-pattern/scripts/score.py) vẫn dùng cho các cuộc chat trên web, desktop, điện thoại (không có log), và chỉ là ước lượng khối lượng.
 
 Số token thật (chỉ có với Claude Code và API) nằm ở skill `token-usage` và Bản đồ token.
 

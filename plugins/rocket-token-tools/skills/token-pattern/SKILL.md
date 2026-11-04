@@ -17,7 +17,7 @@ Khi đang ở Claude Code và có công cụ `ArtifactData`, chấm điểm mọ
 2. Chạy `python3 scripts/cc_patterns.py --days 14 --sync <thư mục tạm>`. Script đọc log phiên trong `~/.claude/projects`, dựng lại pattern từng phiên (số tin, số lần sửa, ảnh, model, có tìm web không, độ dài trả lời, loại việc), chấm điểm bằng `scripts/score.py`, và ghi các phiên mới hoặc đã thay đổi vào `<thư mục tạm>/merged/<id>.json`. Loại việc người dùng đã sửa trên trang được giữ nguyên.
 3. Ghi bằng `ArtifactData` `batch` (tối đa 50 mục mỗi lần): mỗi file là `{op: "set", collection: "data/users/me", doc_id: <tên file bỏ .json>, file_path: file đó, if_version: version ở bước 1}`; bỏ `if_version` với phiên chưa có. Bị từ chối vì version đổi thì làm lại từ bước 1 một lần.
 4. Nếu script báo có dòng cũ hơn 60 ngày: xóa các id trong `<thư mục tạm>/stale.txt` bằng `ArtifactData` `batch` với `op: "delete"` và `if_version` đọc ở bước 1. Chỉ xóa đúng các id đó.
-5. Báo một dòng: số phiên đã thêm hoặc cập nhật. Nếu có đủ dữ liệu, thêm một câu so sánh điểm trung bình 7 ngày qua với 7 ngày trước đó theo loại việc.
+5. Báo một dòng: số phiên đã thêm hoặc cập nhật. Nếu có đủ dữ liệu, thêm một câu so sánh **độ gọn** 7 ngày qua với 7 ngày trước đó: tổng `read` ÷ tổng `out` của mỗi tuần (token đọc cho mỗi token tạo ra) và tỷ lệ `fix`/`turns`. Không đánh giá theo tổng token hay điểm, vì việc lớn hơn đương nhiên tốn hơn; khối lượng (`out`) chỉ nêu để tham khảo.
 
 `/token-usage setup` tạo tác vụ hằng ngày chạy cả `/token-usage sync` lẫn `/token-pattern sync`.
 
