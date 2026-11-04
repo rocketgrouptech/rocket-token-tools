@@ -1,0 +1,8 @@
+{
+  "name": "rocket-token-tools",
+  "version": "1.0.0",
+  "description": "Đo và chấm điểm token đã dùng với Claude: số đo thật từ log Claude Code, tự đồng bộ lên Bản đồ token và Nhật ký tiết kiệm.",
+  "author": {
+    "name": "Rocket Group"
+  }
+}

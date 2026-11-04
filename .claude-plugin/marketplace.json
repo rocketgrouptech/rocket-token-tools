@@ -1,0 +1,14 @@
+{
+  "name": "rocketgroup-claude",
+  "description": "Công cụ nội bộ Rocket Group cho Claude",
+  "owner": {
+    "name": "Rocket Group"
+  },
+  "plugins": [
+    {
+      "name": "rocket-token-tools",
+      "source": "./plugins/rocket-token-tools",
+      "description": "Đo và chấm điểm token đã dùng với Claude: số đo thật từ log Claude Code, tự đồng bộ lên Bản đồ token và Nhật ký tiết kiệm."
+    }
+  ]
+}
